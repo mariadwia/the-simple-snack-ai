@@ -5,7 +5,7 @@ from sklearn.neighbors import NearestNeighbors
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["https://thesimple.my.id"])
 
 # Load data
 df = None
