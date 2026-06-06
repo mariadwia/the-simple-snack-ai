@@ -82,8 +82,28 @@ def predict():
                 'kategori': row['Kategori']
             }
             recommendation_items.append(item)
-            total_snack_price += item['harga']
-        
+            
+            # 4 LOGIKA BISNIS 
+            total_snack_price = sum(item['harga'] for item in recommendation_items)
+
+            # Selama total harga lebih mahal dari budget cemilan, DAN item masih lebih dari 1
+            while total_snack_price > available_for_snack and len(recommendation_items) > 1:
+                # Urutkan dari yang paling mahal di indeks ke-0
+                recommendation_items = sorted(recommendation_items, key=lambda x: x['harga'], reverse=True)
+
+                #Buang item termahal 
+                recommendation_items.pop(0)
+
+                #Hitung ulang
+                total_snack_price = sum(item['harga'] for item in recommendation_items)
+
+            # Pengecekan akhir jika tersisa 1 item tapi masih rugi 
+            if total_snack_price > available_for_snack:
+                return jsonify({
+                    'status' : 'error', 
+                    'message' : 'Sistem tidak dapat menemukan kombinasi produk yang sesuai dengan budget ini. Mohon naikkan budget sedikit yang lebih realistis!'
+                })
+            
         return jsonify({
             'status': 'success', 
             'calculation': {
@@ -104,4 +124,5 @@ def predict():
         return jsonify({'status': 'error', 'message': 'Gagal memproses data server.'})
 
 if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 5000))
     app.run(port=5000, debug=True)
